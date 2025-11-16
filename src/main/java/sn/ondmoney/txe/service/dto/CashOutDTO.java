@@ -16,6 +16,7 @@ public class CashOutDTO implements Serializable {
     private Long id;
 
     @NotNull
+    @DecimalMin("0.01") // pour eviter les nombres négatifs
     private BigDecimal amount;
 
     @NotNull

@@ -25,9 +25,12 @@ public class CashOutService {
 
     private final CashOutMapper cashOutMapper;
 
-    public CashOutService(CashOutRepository cashOutRepository, CashOutMapper cashOutMapper) {
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+
+    public CashOutService(CashOutRepository cashOutRepository, CashOutMapper cashOutMapper, KafkaTemplate<String, Object> kafkaTemplate) {
         this.cashOutRepository = cashOutRepository;
         this.cashOutMapper = cashOutMapper;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     /**
@@ -40,6 +43,10 @@ public class CashOutService {
         LOG.debug("Request to save CashOut : {}", cashOutDTO);
         CashOut cashOut = cashOutMapper.toEntity(cashOutDTO);
         cashOut = cashOutRepository.save(cashOut);
+
+        // Publier l'événement Kafka
+        kafkaTemplate.send(TOPIC, cashOut);
+
         return cashOutMapper.toDto(cashOut);
     }
 
@@ -53,6 +60,9 @@ public class CashOutService {
         LOG.debug("Request to update CashOut : {}", cashOutDTO);
         CashOut cashOut = cashOutMapper.toEntity(cashOutDTO);
         cashOut = cashOutRepository.save(cashOut);
+
+        kafkaTemplate.send(TOPIC, cashOut);
+
         return cashOutMapper.toDto(cashOut);
     }
 
@@ -73,7 +83,10 @@ public class CashOutService {
                 return existingCashOut;
             })
             .map(cashOutRepository::save)
-            .map(cashOutMapper::toDto);
+            .map(saved -> {
+                kafkaTemplate.send(TOPIC, saved);
+                return cashOutMapper.toDto(saved);
+            });
     }
 
     /**
@@ -108,5 +121,8 @@ public class CashOutService {
     public void delete(Long id) {
         LOG.debug("Request to delete CashOut : {}", id);
         cashOutRepository.deleteById(id);
+
+        // Publier un événement de suppression si nécessaire
+        kafkaTemplate.send(TOPIC, "Deleted CashOut ID: " + id);
     }
 }
