@@ -1,0 +1,42 @@
+{
+  "annotations": {
+    "changelogDate": "20251116135434"
+  },
+  "applications": ["ondmoneyTransactionEngine"],
+  "clientRootFolder": "ondmoneyTransactionEngine",
+  "databaseType": "sql",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "amount",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "senderId",
+      "fieldType": "Long",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "receiverId",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "CashOutStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "PENDING,SUCCESS,FAILED,CANCELLED"
+    },
+    {
+      "fieldName": "date",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "microserviceName": "ondmoneyTransactionEngine",
+  "name": "CashOut",
+  "pagination": "pagination",
+  "relationships": [],
+  "searchEngine": "no",
+  "service": "serviceClass"
+}

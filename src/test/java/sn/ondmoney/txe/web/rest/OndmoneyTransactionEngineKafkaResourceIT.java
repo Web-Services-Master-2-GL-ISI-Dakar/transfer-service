@@ -2,7 +2,6 @@ package sn.ondmoney.txe.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -44,9 +43,7 @@ class OndmoneyTransactionEngineKafkaResourceIT {
 
     @Test
     void producesMessages() throws Exception {
-        restMockMvc
-            .perform(post("/api/ondmoney-transaction-engine-kafka/publish?message=value-produce").with(csrf()))
-            .andExpect(status().isOk());
+        restMockMvc.perform(post("/api/ondmoney-transaction-engine-kafka/publish?message=value-produce")).andExpect(status().isOk());
         assertThat(output.receive(1000, "binding-out-0").getPayload()).isEqualTo("value-produce".getBytes());
     }
 

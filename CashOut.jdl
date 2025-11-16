@@ -1,0 +1,32 @@
+application {
+  config {
+    baseName ondmoneyTransactionEngine
+    applicationType microservice
+    packageName sn.ondmoney.txe
+    authenticationType jwt
+    databaseType sql
+    devDatabaseType postgresql
+    prodDatabaseType postgresql
+    buildTool maven
+    serverPort 8081
+    }
+    entities CashOut
+  }
+
+  enum CashOutStatus {
+    PENDING
+    SUCCESS
+    FAILED
+    CANCELLED
+  }
+
+  entity CashOut {
+    amount BigDecimal required
+    senderId Long required
+    receiverId Long status
+    CashOutStatus required
+    date Instant required
+  }
+  dto CashOut with mapstruct
+  service CashOut with serviceClass
+  paginate CashOut with pagination

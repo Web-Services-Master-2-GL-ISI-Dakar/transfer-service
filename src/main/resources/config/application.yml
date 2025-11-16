@@ -200,15 +200,10 @@ spring:
       enabled: true
   security:
     oauth2:
-      client:
-        provider:
-          oidc:
-            issuer-uri: http://localhost:9080/realms/jhipster
-        registration:
-          oidc:
-            client-id: internal
-            client-secret: internal
-            scope: openid, profile, email, offline_access # last one for refresh tokens
+      resourceserver:
+        jwt:
+          authority-prefix: ''
+          authorities-claim-name: auth
   task:
     execution:
       thread-name-prefix: ondmoney-transaction-engine-task-
@@ -272,10 +267,6 @@ jhipster:
     license: unlicensed
     license-url:
   security:
-    oauth2:
-      audience:
-        - account
-        - api://default
 
 # jhipster-needle-add-application-yaml-document
 ---

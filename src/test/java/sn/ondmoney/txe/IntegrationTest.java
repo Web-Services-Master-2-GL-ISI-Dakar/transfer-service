@@ -11,18 +11,13 @@ import sn.ondmoney.txe.config.EmbeddedKafka;
 import sn.ondmoney.txe.config.EmbeddedRedis;
 import sn.ondmoney.txe.config.EmbeddedSQL;
 import sn.ondmoney.txe.config.JacksonConfiguration;
-import sn.ondmoney.txe.config.TestSecurityConfiguration;
 
 /**
  * Base composite annotation for integration tests.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@SpringBootTest(
-    classes = {
-        OndmoneyTransactionEngineApp.class, JacksonConfiguration.class, AsyncSyncConfiguration.class, TestSecurityConfiguration.class,
-    }
-)
+@SpringBootTest(classes = { OndmoneyTransactionEngineApp.class, JacksonConfiguration.class, AsyncSyncConfiguration.class })
 @EmbeddedRedis
 @EmbeddedElasticsearch
 @EmbeddedSQL

@@ -58,21 +58,10 @@ components:
                   It may or may not yield further information if dereferenced.
 
   securitySchemes:
-    oauth:
-      type: oauth2
-      description: OAuth2 authentication with KeyCloak
-      flows:
-        authorizationCode:
-          authorizationUrl: http://localhost:9080/realms/jhipster/protocol/openid-connect/auth
-          tokenUrl: http://localhost:9080/realms/jhipster/protocol/openid-connect/token
-          scopes:
-            jhipster: Jhipster specific claims
-            email: Email claims
-            profile: Profile claims
-    openId:
-      type: openIdConnect
-      description: OpenID Connect authentication with KeyCloak
-      openIdConnectUrl: http://localhost:9080/realms/jhipster/.well-known/openid-configuration
+    jwt:
+      type: http
+      description: JWT Authentication
+      scheme: bearer
+      bearerFormat: JWT
 security:
-  - oauth: [jhipster, email, profile]
-  - openId: [jhipster, email, profile]
+  - jwt: []
