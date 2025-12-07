@@ -1,26 +1,25 @@
 package sn.ondmoney.txe.config;
 
-import java.net.URI;
-import java.util.concurrent.TimeUnit;
-import javax.cache.configuration.MutableConfiguration;
-import javax.cache.expiry.CreatedExpiryPolicy;
-import javax.cache.expiry.Duration;
-import org.hibernate.cache.jcache.ConfigSettings;
-import org.redisson.Redisson;
-import org.redisson.config.ClusterServersConfig;
-import org.redisson.config.Config;
-import org.redisson.config.SingleServerConfig;
-import org.redisson.jcache.configuration.RedissonConfiguration;
+import com.hazelcast.config.*;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import jakarta.annotation.PreDestroy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.cache.JCacheManagerCustomizer;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernatePropertiesCustomizer;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.boot.info.GitProperties;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.interceptor.KeyGenerator;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.context.annotation.*;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
+import tech.jhipster.config.JHipsterConstants;
 import tech.jhipster.config.JHipsterProperties;
 import tech.jhipster.config.cache.PrefixedKeyGenerator;
 
@@ -31,68 +30,120 @@ public class CacheConfiguration {
     private GitProperties gitProperties;
     private BuildProperties buildProperties;
 
+    private static final Logger LOG = LoggerFactory.getLogger(CacheConfiguration.class);
+
+    private final Environment env;
+
+    private final ServerProperties serverProperties;
+
+    private final DiscoveryClient discoveryClient;
+
+    private Registration registration;
+
+    public CacheConfiguration(Environment env, ServerProperties serverProperties, DiscoveryClient discoveryClient) {
+        this.env = env;
+        this.serverProperties = serverProperties;
+        this.discoveryClient = discoveryClient;
+    }
+
+    @Autowired(required = false)
+    public void setRegistration(Registration registration) {
+        this.registration = registration;
+    }
+
+    @PreDestroy
+    public void destroy() {
+        LOG.info("Closing Cache Manager");
+        Hazelcast.shutdownAll();
+    }
+
     @Bean
-    public javax.cache.configuration.Configuration<Object, Object> jcacheConfiguration(JHipsterProperties jHipsterProperties) {
-        MutableConfiguration<Object, Object> jcacheConfig = new MutableConfiguration<>();
+    public CacheManager cacheManager(HazelcastInstance hazelcastInstance) {
+        LOG.debug("Starting HazelcastCacheManager");
+        return new com.hazelcast.spring.cache.HazelcastCacheManager(hazelcastInstance);
+    }
 
-        URI redisUri = URI.create(jHipsterProperties.getCache().getRedis().getServer()[0]);
-
+    @Bean
+    public HazelcastInstance hazelcastInstance(JHipsterProperties jHipsterProperties) {
+        LOG.debug("Configuring Hazelcast");
+        HazelcastInstance hazelCastInstance = Hazelcast.getHazelcastInstanceByName("ondmoneyTransactionEngine");
+        if (hazelCastInstance != null) {
+            LOG.debug("Hazelcast already initialized");
+            return hazelCastInstance;
+        }
         Config config = new Config();
-        // Fix Hibernate lazy initialization https://github.com/jhipster/generator-jhipster/issues/22889
-        config.setCodec(new org.redisson.codec.SerializationCodec());
-        if (jHipsterProperties.getCache().getRedis().isCluster()) {
-            ClusterServersConfig clusterServersConfig = config
-                .useClusterServers()
-                .setMasterConnectionPoolSize(jHipsterProperties.getCache().getRedis().getConnectionPoolSize())
-                .setMasterConnectionMinimumIdleSize(jHipsterProperties.getCache().getRedis().getConnectionMinimumIdleSize())
-                .setSubscriptionConnectionPoolSize(jHipsterProperties.getCache().getRedis().getSubscriptionConnectionPoolSize())
-                .addNodeAddress(jHipsterProperties.getCache().getRedis().getServer());
-
-            if (redisUri.getUserInfo() != null) {
-                clusterServersConfig.setPassword(redisUri.getUserInfo().substring(redisUri.getUserInfo().indexOf(':') + 1));
-            }
+        config.setInstanceName("ondmoneyTransactionEngine");
+        config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
+        if (this.registration == null) {
+            LOG.warn("No discovery service is set up, Hazelcast cannot create a cluster.");
         } else {
-            SingleServerConfig singleServerConfig = config
-                .useSingleServer()
-                .setConnectionPoolSize(jHipsterProperties.getCache().getRedis().getConnectionPoolSize())
-                .setConnectionMinimumIdleSize(jHipsterProperties.getCache().getRedis().getConnectionMinimumIdleSize())
-                .setSubscriptionConnectionPoolSize(jHipsterProperties.getCache().getRedis().getSubscriptionConnectionPoolSize())
-                .setAddress(jHipsterProperties.getCache().getRedis().getServer()[0]);
+            // The serviceId is by default the application's name,
+            // see the "spring.application.name" standard Spring property
+            String serviceId = registration.getServiceId();
+            LOG.debug("Configuring Hazelcast clustering for instanceId: {}", serviceId);
+            // In development, everything goes through 127.0.0.1, with a different port
+            if (env.acceptsProfiles(Profiles.of(JHipsterConstants.SPRING_PROFILE_DEVELOPMENT))) {
+                LOG.debug(
+                    "Application is running with the \"dev\" profile, Hazelcast " + "cluster will only work with localhost instances"
+                );
 
-            if (redisUri.getUserInfo() != null) {
-                singleServerConfig.setPassword(redisUri.getUserInfo().substring(redisUri.getUserInfo().indexOf(':') + 1));
+                config.getNetworkConfig().setPort(serverProperties.getPort() + 5701);
+                config.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(true);
+                for (ServiceInstance instance : discoveryClient.getInstances(serviceId)) {
+                    String clusterMember = "127.0.0.1:" + (instance.getPort() + 5701);
+                    LOG.debug("Adding Hazelcast (dev) cluster member {}", clusterMember);
+                    config.getNetworkConfig().getJoin().getTcpIpConfig().addMember(clusterMember);
+                }
+            } else { // Production configuration, one host per instance all using port 5701
+                config.getNetworkConfig().setPort(5701);
+                config.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(true);
+                for (ServiceInstance instance : discoveryClient.getInstances(serviceId)) {
+                    String clusterMember = instance.getHost() + ":5701";
+                    LOG.debug("Adding Hazelcast (prod) cluster member {}", clusterMember);
+                    config.getNetworkConfig().getJoin().getTcpIpConfig().addMember(clusterMember);
+                }
             }
         }
-        jcacheConfig.setStatisticsEnabled(true);
-        jcacheConfig.setExpiryPolicyFactory(
-            CreatedExpiryPolicy.factoryOf(new Duration(TimeUnit.SECONDS, jHipsterProperties.getCache().getRedis().getExpiration()))
-        );
-        return RedissonConfiguration.fromInstance(Redisson.create(config), jcacheConfig);
+        config.setManagementCenterConfig(new ManagementCenterConfig());
+        config.addMapConfig(initializeDefaultMapConfig(jHipsterProperties));
+        config.addMapConfig(initializeDomainMapConfig(jHipsterProperties));
+        return Hazelcast.newHazelcastInstance(config);
     }
 
-    @Bean
-    public HibernatePropertiesCustomizer hibernatePropertiesCustomizer(javax.cache.CacheManager cm) {
-        return hibernateProperties -> hibernateProperties.put(ConfigSettings.CACHE_MANAGER, cm);
+    private MapConfig initializeDefaultMapConfig(JHipsterProperties jHipsterProperties) {
+        MapConfig mapConfig = new MapConfig("default");
+
+        /*
+        Number of backups. If 1 is set as the backup-count for example,
+        then all entries of the map will be copied to another JVM for
+        fail-safety. Valid numbers are 0 (no backup), 1, 2, 3.
+        */
+        mapConfig.setBackupCount(jHipsterProperties.getCache().getHazelcast().getBackupCount());
+
+        /*
+        Valid values are:
+        NONE (no eviction),
+        LRU (Least Recently Used),
+        LFU (Least Frequently Used).
+        NONE is the default.
+        */
+        mapConfig.getEvictionConfig().setEvictionPolicy(EvictionPolicy.LRU);
+
+        /*
+        Maximum size of the map. When max size is reached,
+        map is evicted based on the policy defined.
+        Any integer between 0 and Integer.MAX_VALUE. 0 means
+        Integer.MAX_VALUE. Default is 0.
+        */
+        mapConfig.getEvictionConfig().setMaxSizePolicy(MaxSizePolicy.USED_HEAP_SIZE);
+
+        return mapConfig;
     }
 
-    @Bean
-    public JCacheManagerCustomizer cacheManagerCustomizer(javax.cache.configuration.Configuration<Object, Object> jcacheConfiguration) {
-        return cm -> {
-            // jhipster-needle-redis-add-entry
-        };
-    }
-
-    private void createCache(
-        javax.cache.CacheManager cm,
-        String cacheName,
-        javax.cache.configuration.Configuration<Object, Object> jcacheConfiguration
-    ) {
-        javax.cache.Cache<Object, Object> cache = cm.getCache(cacheName);
-        if (cache != null) {
-            cache.clear();
-        } else {
-            cm.createCache(cacheName, jcacheConfiguration);
-        }
+    private MapConfig initializeDomainMapConfig(JHipsterProperties jHipsterProperties) {
+        MapConfig mapConfig = new MapConfig("sn.ondmoney.txe.domain.*");
+        mapConfig.setTimeToLiveSeconds(jHipsterProperties.getCache().getHazelcast().getTimeToLiveSeconds());
+        return mapConfig;
     }
 
     @Autowired(required = false)

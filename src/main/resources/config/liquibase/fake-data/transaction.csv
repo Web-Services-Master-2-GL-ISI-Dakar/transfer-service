@@ -1,0 +1,11 @@
+id;tx_id;external_tx_id;type;status;amount;fees;source;destination;initiated_at;completed_at;failed_at;error_message
+1;cleverly steep naturally;ingratiate;WALLET2BANK;PENDING;4040.85;19166.12;before an outside;whose why;2025-12-07T17:01:14;2025-12-06T22:35:24;2025-12-07T02:20:04;cumbersome modulo
+2;sarcastic motivate where;geez laughter;BANK2WALLET;COMPLETED;26450.84;29610.7;who boo um;faithfully caring sparkling;2025-12-06T21:56:08;2025-12-07T16:18:05;2025-12-07T12:47:10;pfft frenetically indelible
+3;in ride;keenly;BILL_PAYMENT;PENDING;6594.05;6750.43;spook marten remorseful;sans step jubilant;2025-12-07T03:41:38;2025-12-07T07:34:46;2025-12-07T06:53:59;ick
+4;outset;function considering mosh;BILL_PAYMENT;PENDING;9826.71;27020.75;favorable;garage near;2025-12-07T01:57:41;2025-12-06T22:24:33;2025-12-07T06:20:38;square
+5;which;cricket squirm;TRANSFER_P2P;PENDING;32295.07;6430.23;rare before muted;jittery;2025-12-07T14:54:34;2025-12-07T10:33:50;2025-12-06T23:43:01;um daddy saw
+6;ouch goodwill amidst;tabulate whoa;CARD_RECHARGE;COMPLETED;30063.04;30728.73;what valiantly;vice efface atop;2025-12-07T14:33:42;2025-12-07T05:25:25;2025-12-07T05:29:25;phooey the
+7;and;pantyhose;BILL_PAYMENT;FAILED;16680.68;17478.48;pfft;since;2025-12-07T10:52:00;2025-12-07T15:34:05;2025-12-07T11:46:11;at
+8;ha;once;MERCHANT_PAYMENT;FAILED;20345.75;22090.4;canter;yet crystallize;2025-12-07T04:23:42;2025-12-06T23:28:55;2025-12-07T05:40:19;verbally
+9;tomography jeopardise while;scratch moralise;WALLET2BANK;PENDING;5894.68;15187.31;cap formal physically;uselessly exotic;2025-12-07T05:23:09;2025-12-07T07:40:39;2025-12-07T12:52:52;excepting now gracefully
+10;cutover warmly persecute;immaculate inside boohoo;AIRTIME_PURCHASE;FAILED;467.44;2801.29;among gee;trust despite;2025-12-06T19:38:30;2025-12-07T12:16:40;2025-12-07T03:11:53;riser nor creature

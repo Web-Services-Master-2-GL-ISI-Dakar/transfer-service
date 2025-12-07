@@ -5,18 +5,10 @@ services:
     extends:
       file: ./postgresql.yml
       service: postgresql
-  elasticsearch:
-    extends:
-      file: ./elasticsearch.yml
-      service: elasticsearch
   keycloak:
     extends:
       file: ./keycloak.yml
       service: keycloak
-  redis:
-    extends:
-      file: ./redis.yml
-      service: redis
   jhipster-registry:
     extends:
       file: ./jhipster-registry.yml
