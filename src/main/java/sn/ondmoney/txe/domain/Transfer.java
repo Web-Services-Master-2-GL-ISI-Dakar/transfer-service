@@ -31,9 +31,6 @@ public class Transfer implements Serializable {
     @Column(name = "tx_id", nullable = false, unique = true)
     private String txId;
 
-    @Column(name = "external_tx_id")
-    private String externalTxId;
-
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -104,19 +101,6 @@ public class Transfer implements Serializable {
 
     public void setTxId(String txId) {
         this.txId = txId;
-    }
-
-    public String getExternalTxId() {
-        return this.externalTxId;
-    }
-
-    public Transfer externalTxId(String externalTxId) {
-        this.setExternalTxId(externalTxId);
-        return this;
-    }
-
-    public void setExternalTxId(String externalTxId) {
-        this.externalTxId = externalTxId;
     }
 
     public TransactionStatus getStatus() {
@@ -287,7 +271,6 @@ public class Transfer implements Serializable {
         return "Transfer{" +
             "id=" + getId() +
             ", txId='" + getTxId() + "'" +
-            ", externalTxId='" + getExternalTxId() + "'" +
             ", status='" + getStatus() + "'" +
             ", amount=" + getAmount() +
             ", fees=" + getFees() +

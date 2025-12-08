@@ -49,7 +49,6 @@ public class TransferAsserts {
         assertThat(actual)
             .as("Verify Transfer relevant properties")
             .satisfies(a -> assertThat(a.getTxId()).as("check txId").isEqualTo(expected.getTxId()))
-            .satisfies(a -> assertThat(a.getExternalTxId()).as("check externalTxId").isEqualTo(expected.getExternalTxId()))
             .satisfies(a -> assertThat(a.getStatus()).as("check status").isEqualTo(expected.getStatus()))
             .satisfies(a ->
                 assertThat(a.getAmount()).as("check amount").usingComparator(bigDecimalCompareTo).isEqualTo(expected.getAmount())

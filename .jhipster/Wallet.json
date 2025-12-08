@@ -15,7 +15,7 @@
     {
       "fieldName": "phone",
       "fieldType": "String",
-      "fieldValidateRules": ["unique"]
+      "fieldValidateRules": ["required", "unique"]
     },
     {
       "fieldName": "status",

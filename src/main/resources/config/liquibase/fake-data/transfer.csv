@@ -1,11 +1,11 @@
-id;tx_id;external_tx_id;status;amount;fees;sender_phone;receiver_phone;initiated_at;completed_at;failed_at;error_message
-1;as regarding mmm;unhealthy how woot;COMPLETED;17164.26;8138.63;robust into;whose vulgarise;2025-12-07T12:18:34;2025-12-07T08:19:28;2025-12-07T15:15:08;optimistically
-2;justly although;likewise;PENDING;27951.4;23671.84;alongside;gleefully;2025-12-07T16:59:19;2025-12-07T09:03:53;2025-12-07T10:32:02;after both
-3;self-confidence yowza joyously;astride;PENDING;23263.02;21692.72;closed like;amongst so;2025-12-07T17:45:26;2025-12-07T10:43:32;2025-12-07T01:05:22;crumble
-4;because;whether manner eek;COMPLETED;1792.06;25989.74;interestingly community;notwithstanding;2025-12-07T18:32:10;2025-12-07T04:05:15;2025-12-07T18:52:31;starboard assail boohoo
-5;since antagonize;quaver finer fair;COMPLETED;3359.05;31364.79;aha meh provider;matter;2025-12-06T22:30:30;2025-12-07T01:04:55;2025-12-07T19:00:27;curiously ape
-6;mostly phooey lovingly;nor;COMPLETED;186.95;27914.11;ouch pish afterwards;aw;2025-12-07T16:01:17;2025-12-07T01:10:02;2025-12-07T07:05:56;table past
-7;acidly;brightly when ha;COMPLETED;219.03;29554;wedding instead;snowplow;2025-12-07T13:47:47;2025-12-06T22:26:46;2025-12-06T20:12:12;sweetly during yeast
-8;including backbone;adviser uncommon;PENDING;135.31;21600.16;gleefully till supposing;muddy needily;2025-12-06T21:29:40;2025-12-07T10:42:43;2025-12-06T20:23:43;brr bob
-9;venture;passionate jealously;FAILED;8164.88;7627.72;regarding;ouch sequester;2025-12-06T23:50:58;2025-12-06T23:09:27;2025-12-07T00:59:47;lovable
-10;enlist dislocate;yuck;FAILED;22964.89;24530.93;gadzooks;fooey opposite;2025-12-06T21:10:30;2025-12-07T05:18:01;2025-12-07T11:39:34;starboard gah within
+id;tx_id;status;amount;fees;sender_phone;receiver_phone;initiated_at;completed_at;failed_at;error_message
+1;as regarding mmm;FAILED;11285.75;14033.74;bossy hmph expert;robust into;2025-12-07T10:14:32;2025-12-07T06:27:46;2025-12-07T18:39:18;likewise svelte major
+2;lighthearted aha;PENDING;2036.96;7255.56;splay;furthermore sunbeam dismal;2025-12-07T13:35:53;2025-12-06T20:44:27;2025-12-07T19:00:38;down before
+3;um porter;PENDING;12730.98;1886.18;almost but;if snowplow;2025-12-07T05:56:04;2025-12-07T14:06:21;2025-12-06T22:49:54;tromp
+4;sauerkraut drag;PENDING;26997.36;2822.3;whether manner eek;abaft yuck;2025-12-07T08:43:06;2025-12-06T20:35:00;2025-12-06T23:28:03;notwithstanding
+5;chatter furthermore merrily;PENDING;9826.48;5868.17;since antagonize;quaver finer fair;2025-12-07T06:33:28;2025-12-06T21:47:37;2025-12-07T18:18:21;aha meh provider
+6;matter;PENDING;7848.96;32322.75;curiously ape;mostly phooey lovingly;2025-12-07T00:14:04;2025-12-06T22:08:57;2025-12-07T00:58:44;whether
+7;ouch pish afterwards;PENDING;13957.31;1288.28;jungle following;past heighten till;2025-12-07T00:04:39;2025-12-06T21:12:14;2025-12-07T17:14:27;surge
+8;zowie;COMPLETED;18636.18;30979.04;delightfully eek common;boo;2025-12-07T14:22:48;2025-12-06T20:38:09;2025-12-07T02:56:13;yuck key gadzooks
+9;ew gadzooks;FAILED;23793.1;11124.16;abaft or;boohoo ew;2025-12-07T17:48:00;2025-12-07T17:24:39;2025-12-07T13:43:07;amid nor brr
+10;now gracefully;COMPLETED;20325.97;13973.71;reach victoriously;quarrelsome;2025-12-06T21:39:38;2025-12-07T03:25:17;2025-12-07T01:43:58;versus voluntarily quirkily

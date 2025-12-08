@@ -43,9 +43,6 @@ class TransferResourceIT {
     private static final String DEFAULT_TX_ID = "AAAAAAAAAA";
     private static final String UPDATED_TX_ID = "BBBBBBBBBB";
 
-    private static final String DEFAULT_EXTERNAL_TX_ID = "AAAAAAAAAA";
-    private static final String UPDATED_EXTERNAL_TX_ID = "BBBBBBBBBB";
-
     private static final TransactionStatus DEFAULT_STATUS = TransactionStatus.PENDING;
     private static final TransactionStatus UPDATED_STATUS = TransactionStatus.COMPLETED;
 
@@ -107,7 +104,6 @@ class TransferResourceIT {
     public static Transfer createEntity() {
         return new Transfer()
             .txId(DEFAULT_TX_ID)
-            .externalTxId(DEFAULT_EXTERNAL_TX_ID)
             .status(DEFAULT_STATUS)
             .amount(DEFAULT_AMOUNT)
             .fees(DEFAULT_FEES)
@@ -128,7 +124,6 @@ class TransferResourceIT {
     public static Transfer createUpdatedEntity() {
         return new Transfer()
             .txId(UPDATED_TX_ID)
-            .externalTxId(UPDATED_EXTERNAL_TX_ID)
             .status(UPDATED_STATUS)
             .amount(UPDATED_AMOUNT)
             .fees(UPDATED_FEES)
@@ -312,7 +307,6 @@ class TransferResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(transfer.getId().intValue())))
             .andExpect(jsonPath("$.[*].txId").value(hasItem(DEFAULT_TX_ID)))
-            .andExpect(jsonPath("$.[*].externalTxId").value(hasItem(DEFAULT_EXTERNAL_TX_ID)))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
             .andExpect(jsonPath("$.[*].amount").value(hasItem(sameNumber(DEFAULT_AMOUNT))))
             .andExpect(jsonPath("$.[*].fees").value(hasItem(sameNumber(DEFAULT_FEES))))
@@ -337,7 +331,6 @@ class TransferResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(transfer.getId().intValue()))
             .andExpect(jsonPath("$.txId").value(DEFAULT_TX_ID))
-            .andExpect(jsonPath("$.externalTxId").value(DEFAULT_EXTERNAL_TX_ID))
             .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()))
             .andExpect(jsonPath("$.amount").value(sameNumber(DEFAULT_AMOUNT)))
             .andExpect(jsonPath("$.fees").value(sameNumber(DEFAULT_FEES)))
@@ -370,7 +363,6 @@ class TransferResourceIT {
         em.detach(updatedTransfer);
         updatedTransfer
             .txId(UPDATED_TX_ID)
-            .externalTxId(UPDATED_EXTERNAL_TX_ID)
             .status(UPDATED_STATUS)
             .amount(UPDATED_AMOUNT)
             .fees(UPDATED_FEES)
@@ -473,11 +465,10 @@ class TransferResourceIT {
         partialUpdatedTransfer.setId(transfer.getId());
 
         partialUpdatedTransfer
-            .status(UPDATED_STATUS)
-            .senderPhone(UPDATED_SENDER_PHONE)
-            .initiatedAt(UPDATED_INITIATED_AT)
+            .amount(UPDATED_AMOUNT)
+            .receiverPhone(UPDATED_RECEIVER_PHONE)
             .completedAt(UPDATED_COMPLETED_AT)
-            .errorMessage(UPDATED_ERROR_MESSAGE);
+            .failedAt(UPDATED_FAILED_AT);
 
         restTransferMockMvc
             .perform(
@@ -508,7 +499,6 @@ class TransferResourceIT {
 
         partialUpdatedTransfer
             .txId(UPDATED_TX_ID)
-            .externalTxId(UPDATED_EXTERNAL_TX_ID)
             .status(UPDATED_STATUS)
             .amount(UPDATED_AMOUNT)
             .fees(UPDATED_FEES)

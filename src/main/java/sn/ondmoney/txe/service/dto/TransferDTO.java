@@ -18,8 +18,6 @@ public class TransferDTO implements Serializable {
     @NotNull
     private String txId;
 
-    private String externalTxId;
-
     @NotNull
     private TransactionStatus status;
 
@@ -64,14 +62,6 @@ public class TransferDTO implements Serializable {
 
     public void setTxId(String txId) {
         this.txId = txId;
-    }
-
-    public String getExternalTxId() {
-        return externalTxId;
-    }
-
-    public void setExternalTxId(String externalTxId) {
-        this.externalTxId = externalTxId;
     }
 
     public TransactionStatus getStatus() {
@@ -189,7 +179,6 @@ public class TransferDTO implements Serializable {
         return "TransferDTO{" +
             "id=" + getId() +
             ", txId='" + getTxId() + "'" +
-            ", externalTxId='" + getExternalTxId() + "'" +
             ", status='" + getStatus() + "'" +
             ", amount=" + getAmount() +
             ", fees=" + getFees() +

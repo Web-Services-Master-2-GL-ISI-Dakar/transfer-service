@@ -17,9 +17,6 @@
             <column name="tx_id" type="varchar(255)">
                 <constraints nullable="false" unique="true" uniqueConstraintName="ux_transfer__tx_id" />
             </column>
-            <column name="external_tx_id" type="varchar(255)">
-                <constraints nullable="true" />
-            </column>
             <column name="status" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
@@ -78,7 +75,6 @@
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
             <column name="tx_id" type="string"/>
-            <column name="external_tx_id" type="string"/>
             <column name="status" type="string"/>
             <column name="amount" type="numeric"/>
             <column name="fees" type="numeric"/>

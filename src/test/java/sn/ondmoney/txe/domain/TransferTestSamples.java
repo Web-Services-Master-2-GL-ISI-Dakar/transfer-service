@@ -13,7 +13,6 @@ public class TransferTestSamples {
         return new Transfer()
             .id(1L)
             .txId("txId1")
-            .externalTxId("externalTxId1")
             .senderPhone("senderPhone1")
             .receiverPhone("receiverPhone1")
             .errorMessage("errorMessage1");
@@ -23,7 +22,6 @@ public class TransferTestSamples {
         return new Transfer()
             .id(2L)
             .txId("txId2")
-            .externalTxId("externalTxId2")
             .senderPhone("senderPhone2")
             .receiverPhone("receiverPhone2")
             .errorMessage("errorMessage2");
@@ -33,7 +31,6 @@ public class TransferTestSamples {
         return new Transfer()
             .id(longCount.incrementAndGet())
             .txId(UUID.randomUUID().toString())
-            .externalTxId(UUID.randomUUID().toString())
             .senderPhone(UUID.randomUUID().toString())
             .receiverPhone(UUID.randomUUID().toString())
             .errorMessage(UUID.randomUUID().toString());

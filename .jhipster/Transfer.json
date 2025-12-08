@@ -13,10 +13,6 @@
       "fieldValidateRules": ["required", "unique"]
     },
     {
-      "fieldName": "externalTxId",
-      "fieldType": "String"
-    },
-    {
       "fieldName": "status",
       "fieldType": "TransactionStatus",
       "fieldValidateRules": ["required"],

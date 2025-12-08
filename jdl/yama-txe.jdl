@@ -33,7 +33,6 @@ entity Wallet {
 
 entity Transfer {
   txId String required unique
-  externalTxId String // Pour tracer l'appel externe lié à cette transaction
   status TransactionStatus required
   amount BigDecimal required min(0)
   fees BigDecimal min(0)
