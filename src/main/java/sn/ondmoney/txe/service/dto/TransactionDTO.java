@@ -52,6 +52,10 @@ public class TransactionDTO implements Serializable {
     @Size(max = 255)
     private String errorMessage;
 
+    private WalletDTO debitedAccount;
+
+    private WalletDTO creditedAccount;
+
     public Long getId() {
         return id;
     }
@@ -156,6 +160,22 @@ public class TransactionDTO implements Serializable {
         this.errorMessage = errorMessage;
     }
 
+    public WalletDTO getDebitedAccount() {
+        return debitedAccount;
+    }
+
+    public void setDebitedAccount(WalletDTO debitedAccount) {
+        this.debitedAccount = debitedAccount;
+    }
+
+    public WalletDTO getCreditedAccount() {
+        return creditedAccount;
+    }
+
+    public void setCreditedAccount(WalletDTO creditedAccount) {
+        this.creditedAccount = creditedAccount;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -194,6 +214,8 @@ public class TransactionDTO implements Serializable {
             ", completedAt='" + getCompletedAt() + "'" +
             ", failedAt='" + getFailedAt() + "'" +
             ", errorMessage='" + getErrorMessage() + "'" +
+            ", debitedAccount=" + getDebitedAccount() +
+            ", creditedAccount=" + getCreditedAccount() +
             "}";
     }
 }

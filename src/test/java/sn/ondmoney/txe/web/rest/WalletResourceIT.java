@@ -194,23 +194,6 @@ class WalletResourceIT {
 
     @Test
     @Transactional
-    void checkPhoneIsRequired() throws Exception {
-        long databaseSizeBeforeTest = getRepositoryCount();
-        // set the field null
-        wallet.setPhone(null);
-
-        // Create the Wallet, which fails.
-        WalletDTO walletDTO = walletMapper.toDto(wallet);
-
-        restWalletMockMvc
-            .perform(post(ENTITY_API_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(walletDTO)))
-            .andExpect(status().isBadRequest());
-
-        assertSameRepositoryCount(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
     void checkStatusIsRequired() throws Exception {
         long databaseSizeBeforeTest = getRepositoryCount();
         // set the field null

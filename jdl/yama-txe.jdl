@@ -22,8 +22,8 @@ enum WalletStatus {
 }
 
 entity Wallet {
-  userId String required unique // ID du client dans le microservice AUTH
-  phone String required unique
+  userId String required unique  // ID du client dans le microservice AUTH
+  phone String required unique           // Numéro de téléphone unique du client
   status WalletStatus required
   balance BigDecimal required
   version Integer required
@@ -77,6 +77,16 @@ entity Transaction {
   completedAt Instant
   failedAt Instant
   errorMessage String maxlength(255)
+}
+
+relationship OneToMany {
+  // 1. Liaison Wallet <-> Transaction (Opérations Générales incluant celles des autres microservices)
+  Wallet{debits} to Transaction{debitedAccount},
+  Wallet{credits} to Transaction{creditedAccount}
+
+  // 2. Liaison Wallet <-> Transfer (Opérations P2P)
+  Wallet{transfersSent} to Transfer{sender},
+  Wallet{transfersReceived} to Transfer{receiver}
 }
 
 dto * with mapstruct

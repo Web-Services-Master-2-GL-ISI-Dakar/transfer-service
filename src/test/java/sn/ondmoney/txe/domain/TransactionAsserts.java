@@ -71,6 +71,9 @@ public class TransactionAsserts {
      * @param actual the actual entity
      */
     public static void assertTransactionUpdatableRelationshipsEquals(Transaction expected, Transaction actual) {
-        // empty method
+        assertThat(actual)
+            .as("Verify Transaction relationships")
+            .satisfies(a -> assertThat(a.getDebitedAccount()).as("check debitedAccount").isEqualTo(expected.getDebitedAccount()))
+            .satisfies(a -> assertThat(a.getCreditedAccount()).as("check creditedAccount").isEqualTo(expected.getCreditedAccount()));
     }
 }

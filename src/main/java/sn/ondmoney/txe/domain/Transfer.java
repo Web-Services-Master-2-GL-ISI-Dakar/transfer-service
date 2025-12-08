@@ -1,5 +1,6 @@
 package sn.ondmoney.txe.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
@@ -68,6 +69,14 @@ public class Transfer implements Serializable {
     @Size(max = 255)
     @Column(name = "error_message", length = 255)
     private String errorMessage;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "debits", "credits", "transfersSents", "transfersReceiveds" }, allowSetters = true)
+    private Wallet sender;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "debits", "credits", "transfersSents", "transfersReceiveds" }, allowSetters = true)
+    private Wallet receiver;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -225,6 +234,32 @@ public class Transfer implements Serializable {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    public Wallet getSender() {
+        return this.sender;
+    }
+
+    public void setSender(Wallet wallet) {
+        this.sender = wallet;
+    }
+
+    public Transfer sender(Wallet wallet) {
+        this.setSender(wallet);
+        return this;
+    }
+
+    public Wallet getReceiver() {
+        return this.receiver;
+    }
+
+    public void setReceiver(Wallet wallet) {
+        this.receiver = wallet;
+    }
+
+    public Transfer receiver(Wallet wallet) {
+        this.setReceiver(wallet);
+        return this;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

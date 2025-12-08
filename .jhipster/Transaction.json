@@ -75,7 +75,22 @@
   "microserviceName": "ondmoneyTransactionEngine",
   "name": "Transaction",
   "pagination": "pagination",
-  "relationships": [],
+  "relationships": [
+    {
+      "otherEntityName": "wallet",
+      "otherEntityRelationshipName": "debits",
+      "relationshipName": "debitedAccount",
+      "relationshipSide": "right",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "wallet",
+      "otherEntityRelationshipName": "credits",
+      "relationshipName": "creditedAccount",
+      "relationshipSide": "right",
+      "relationshipType": "many-to-one"
+    }
+  ],
   "searchEngine": "no",
   "service": "serviceImpl"
 }

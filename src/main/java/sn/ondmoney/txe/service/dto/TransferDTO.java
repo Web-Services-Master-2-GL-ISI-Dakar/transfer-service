@@ -46,6 +46,10 @@ public class TransferDTO implements Serializable {
     @Size(max = 255)
     private String errorMessage;
 
+    private WalletDTO sender;
+
+    private WalletDTO receiver;
+
     public Long getId() {
         return id;
     }
@@ -142,6 +146,22 @@ public class TransferDTO implements Serializable {
         this.errorMessage = errorMessage;
     }
 
+    public WalletDTO getSender() {
+        return sender;
+    }
+
+    public void setSender(WalletDTO sender) {
+        this.sender = sender;
+    }
+
+    public WalletDTO getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(WalletDTO receiver) {
+        this.receiver = receiver;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -179,6 +199,8 @@ public class TransferDTO implements Serializable {
             ", completedAt='" + getCompletedAt() + "'" +
             ", failedAt='" + getFailedAt() + "'" +
             ", errorMessage='" + getErrorMessage() + "'" +
+            ", sender=" + getSender() +
+            ", receiver=" + getReceiver() +
             "}";
     }
 }

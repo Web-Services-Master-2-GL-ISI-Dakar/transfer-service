@@ -2,6 +2,7 @@ package sn.ondmoney.txe.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static sn.ondmoney.txe.domain.TransactionTestSamples.*;
+import static sn.ondmoney.txe.domain.WalletTestSamples.*;
 
 import org.junit.jupiter.api.Test;
 import sn.ondmoney.txe.web.rest.TestUtil;
@@ -20,5 +21,29 @@ class TransactionTest {
 
         transaction2 = getTransactionSample2();
         assertThat(transaction1).isNotEqualTo(transaction2);
+    }
+
+    @Test
+    void debitedAccountTest() {
+        Transaction transaction = getTransactionRandomSampleGenerator();
+        Wallet walletBack = getWalletRandomSampleGenerator();
+
+        transaction.setDebitedAccount(walletBack);
+        assertThat(transaction.getDebitedAccount()).isEqualTo(walletBack);
+
+        transaction.debitedAccount(null);
+        assertThat(transaction.getDebitedAccount()).isNull();
+    }
+
+    @Test
+    void creditedAccountTest() {
+        Transaction transaction = getTransactionRandomSampleGenerator();
+        Wallet walletBack = getWalletRandomSampleGenerator();
+
+        transaction.setCreditedAccount(walletBack);
+        assertThat(transaction.getCreditedAccount()).isEqualTo(walletBack);
+
+        transaction.creditedAccount(null);
+        assertThat(transaction.getCreditedAccount()).isNull();
     }
 }

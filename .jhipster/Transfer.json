@@ -67,7 +67,22 @@
   "microserviceName": "ondmoneyTransactionEngine",
   "name": "Transfer",
   "pagination": "pagination",
-  "relationships": [],
+  "relationships": [
+    {
+      "otherEntityName": "wallet",
+      "otherEntityRelationshipName": "transfersSent",
+      "relationshipName": "sender",
+      "relationshipSide": "right",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "wallet",
+      "otherEntityRelationshipName": "transfersReceived",
+      "relationshipName": "receiver",
+      "relationshipSide": "right",
+      "relationshipType": "many-to-one"
+    }
+  ],
   "searchEngine": "no",
   "service": "serviceImpl"
 }

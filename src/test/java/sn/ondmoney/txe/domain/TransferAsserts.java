@@ -70,6 +70,9 @@ public class TransferAsserts {
      * @param actual the actual entity
      */
     public static void assertTransferUpdatableRelationshipsEquals(Transfer expected, Transfer actual) {
-        // empty method
+        assertThat(actual)
+            .as("Verify Transfer relationships")
+            .satisfies(a -> assertThat(a.getSender()).as("check sender").isEqualTo(expected.getSender()))
+            .satisfies(a -> assertThat(a.getReceiver()).as("check receiver").isEqualTo(expected.getReceiver()));
     }
 }

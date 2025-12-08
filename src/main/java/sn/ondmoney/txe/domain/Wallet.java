@@ -1,10 +1,13 @@
 package sn.ondmoney.txe.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import sn.ondmoney.txe.domain.enumeration.WalletStatus;
@@ -30,8 +33,7 @@ public class Wallet implements Serializable {
     @Column(name = "user_id", nullable = false, unique = true)
     private String userId;
 
-    @NotNull
-    @Column(name = "phone", nullable = false, unique = true)
+    @Column(name = "phone", unique = true)
     private String phone;
 
     @NotNull
@@ -53,6 +55,26 @@ public class Wallet implements Serializable {
 
     @Column(name = "updated_at")
     private Instant updatedAt;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "debitedAccount")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "debitedAccount", "creditedAccount" }, allowSetters = true)
+    private Set<Transaction> debits = new HashSet<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "creditedAccount")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "debitedAccount", "creditedAccount" }, allowSetters = true)
+    private Set<Transaction> credits = new HashSet<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "sender")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "sender", "receiver" }, allowSetters = true)
+    private Set<Transfer> transfersSents = new HashSet<>();
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "receiver")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "sender", "receiver" }, allowSetters = true)
+    private Set<Transfer> transfersReceiveds = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -158,6 +180,130 @@ public class Wallet implements Serializable {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Set<Transaction> getDebits() {
+        return this.debits;
+    }
+
+    public void setDebits(Set<Transaction> transactions) {
+        if (this.debits != null) {
+            this.debits.forEach(i -> i.setDebitedAccount(null));
+        }
+        if (transactions != null) {
+            transactions.forEach(i -> i.setDebitedAccount(this));
+        }
+        this.debits = transactions;
+    }
+
+    public Wallet debits(Set<Transaction> transactions) {
+        this.setDebits(transactions);
+        return this;
+    }
+
+    public Wallet addDebits(Transaction transaction) {
+        this.debits.add(transaction);
+        transaction.setDebitedAccount(this);
+        return this;
+    }
+
+    public Wallet removeDebits(Transaction transaction) {
+        this.debits.remove(transaction);
+        transaction.setDebitedAccount(null);
+        return this;
+    }
+
+    public Set<Transaction> getCredits() {
+        return this.credits;
+    }
+
+    public void setCredits(Set<Transaction> transactions) {
+        if (this.credits != null) {
+            this.credits.forEach(i -> i.setCreditedAccount(null));
+        }
+        if (transactions != null) {
+            transactions.forEach(i -> i.setCreditedAccount(this));
+        }
+        this.credits = transactions;
+    }
+
+    public Wallet credits(Set<Transaction> transactions) {
+        this.setCredits(transactions);
+        return this;
+    }
+
+    public Wallet addCredits(Transaction transaction) {
+        this.credits.add(transaction);
+        transaction.setCreditedAccount(this);
+        return this;
+    }
+
+    public Wallet removeCredits(Transaction transaction) {
+        this.credits.remove(transaction);
+        transaction.setCreditedAccount(null);
+        return this;
+    }
+
+    public Set<Transfer> getTransfersSents() {
+        return this.transfersSents;
+    }
+
+    public void setTransfersSents(Set<Transfer> transfers) {
+        if (this.transfersSents != null) {
+            this.transfersSents.forEach(i -> i.setSender(null));
+        }
+        if (transfers != null) {
+            transfers.forEach(i -> i.setSender(this));
+        }
+        this.transfersSents = transfers;
+    }
+
+    public Wallet transfersSents(Set<Transfer> transfers) {
+        this.setTransfersSents(transfers);
+        return this;
+    }
+
+    public Wallet addTransfersSent(Transfer transfer) {
+        this.transfersSents.add(transfer);
+        transfer.setSender(this);
+        return this;
+    }
+
+    public Wallet removeTransfersSent(Transfer transfer) {
+        this.transfersSents.remove(transfer);
+        transfer.setSender(null);
+        return this;
+    }
+
+    public Set<Transfer> getTransfersReceiveds() {
+        return this.transfersReceiveds;
+    }
+
+    public void setTransfersReceiveds(Set<Transfer> transfers) {
+        if (this.transfersReceiveds != null) {
+            this.transfersReceiveds.forEach(i -> i.setReceiver(null));
+        }
+        if (transfers != null) {
+            transfers.forEach(i -> i.setReceiver(this));
+        }
+        this.transfersReceiveds = transfers;
+    }
+
+    public Wallet transfersReceiveds(Set<Transfer> transfers) {
+        this.setTransfersReceiveds(transfers);
+        return this;
+    }
+
+    public Wallet addTransfersReceived(Transfer transfer) {
+        this.transfersReceiveds.add(transfer);
+        transfer.setReceiver(this);
+        return this;
+    }
+
+    public Wallet removeTransfersReceived(Transfer transfer) {
+        this.transfersReceiveds.remove(transfer);
+        transfer.setReceiver(null);
+        return this;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

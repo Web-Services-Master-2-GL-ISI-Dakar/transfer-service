@@ -1,5 +1,6 @@
 package sn.ondmoney.txe.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
@@ -74,6 +75,14 @@ public class Transaction implements Serializable {
     @Size(max = 255)
     @Column(name = "error_message", length = 255)
     private String errorMessage;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "debits", "credits", "transfersSents", "transfersReceiveds" }, allowSetters = true)
+    private Wallet debitedAccount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "debits", "credits", "transfersSents", "transfersReceiveds" }, allowSetters = true)
+    private Wallet creditedAccount;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -244,6 +253,32 @@ public class Transaction implements Serializable {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    public Wallet getDebitedAccount() {
+        return this.debitedAccount;
+    }
+
+    public void setDebitedAccount(Wallet wallet) {
+        this.debitedAccount = wallet;
+    }
+
+    public Transaction debitedAccount(Wallet wallet) {
+        this.setDebitedAccount(wallet);
+        return this;
+    }
+
+    public Wallet getCreditedAccount() {
+        return this.creditedAccount;
+    }
+
+    public void setCreditedAccount(Wallet wallet) {
+        this.creditedAccount = wallet;
+    }
+
+    public Transaction creditedAccount(Wallet wallet) {
+        this.setCreditedAccount(wallet);
+        return this;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

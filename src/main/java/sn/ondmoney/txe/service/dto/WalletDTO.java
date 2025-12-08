@@ -18,7 +18,6 @@ public class WalletDTO implements Serializable {
     @NotNull
     private String userId;
 
-    @NotNull
     private String phone;
 
     @NotNull
