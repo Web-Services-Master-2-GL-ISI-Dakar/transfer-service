@@ -1,0 +1,96 @@
+{
+  "annotations": {
+    "changelogDate": "20251207192001"
+  },
+  "applications": "*",
+  "clientRootFolder": "ondmoneyTransactionEngine",
+  "databaseType": "sql",
+  "documentation": "Transaction: Journal de tous les mouvements de solde.",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "txId",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique"]
+    },
+    {
+      "fieldName": "externalTxId",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "type",
+      "fieldType": "TransactionType",
+      "fieldTypeDocumentation": "Types de transaction pris en charge par le TXE (Débit/Crédit)",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "TRANSFER_P2P,CARD_RECHARGE,BILL_PAYMENT,MERCHANT_PAYMENT,AIRTIME_PURCHASE,WALLET2BANK,BANK2WALLET"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "TransactionStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "PENDING,COMPLETED,FAILED"
+    },
+    {
+      "fieldName": "amount",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["required", "min"],
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "fees",
+      "fieldType": "BigDecimal",
+      "fieldValidateRules": ["min"],
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "source",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "destination",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "initiatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "completedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "failedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "errorMessage",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "255"
+    }
+  ],
+  "microserviceName": "ondmoneyTransactionEngine",
+  "name": "Transaction",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "wallet",
+      "otherEntityRelationshipName": "debits",
+      "relationshipName": "debitedAccount",
+      "relationshipSide": "right",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "wallet",
+      "otherEntityRelationshipName": "credits",
+      "relationshipName": "creditedAccount",
+      "relationshipSide": "right",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

@@ -1,0 +1,3 @@
+org.springframework.test.context.ContextCustomizerFactory = \
+    sn.ondmoney.txe.config.SqlTestContainersSpringContextCustomizerFactory,sn.\
+    ondmoney.txe.config.KafkaTestContainersSpringContextCustomizerFactory

@@ -1,0 +1,93 @@
+/** Types de transaction pris en charge par le TXE (Débit/Crédit) */
+enum TransactionType {
+  TRANSFER_P2P           // Transfert Client à Client (initié par le TXE lui-même)
+  CARD_RECHARGE          // Demande de débit par le M.S. Recharge de Cartes
+  BILL_PAYMENT           // Demande de débit par le M.S. Paiement de Factures
+  MERCHANT_PAYMENT       // Demande de débit par le M.S. Paiement Marchand
+  AIRTIME_PURCHASE       // Demande de débit par le M.S. Airtime
+  WALLET2BANK            // Crédit demandé par le M.S. Bank-Wallet pour transfert depuis Wallet vers Bank
+  BANK2WALLET            // Débit  demandé par le M.S. Bank-Wallet pour transfert depuis Bank vers Wallet
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum WalletStatus {
+  ACTIVE
+  SUSPENDED
+  CLOSED
+}
+
+entity Wallet {
+  userId String required unique  // ID du client dans le microservice AUTH
+  phone String required unique           // Numéro de téléphone unique du client
+  status WalletStatus required
+  balance BigDecimal required
+  version Integer required
+  createdAt Instant required
+  updatedAt Instant
+}
+
+entity Transfer {
+  txId String required unique
+  status TransactionStatus required
+  amount BigDecimal required min(0)
+  fees BigDecimal min(0)
+
+  // Rôles Logiques
+  senderPhone String required
+  receiverPhone String required
+
+  // Infos d'audit
+  initiatedAt Instant required
+  completedAt Instant
+  failedAt Instant
+  errorMessage String maxlength(255)
+}
+
+/**
+ * Transaction: Journal de tous les mouvements de solde.
+ */
+entity Transaction {
+  txId String required unique
+  externalTxId String // Pour tracer l'appel externe lié à cette transaction dans le System externe à Ond Money
+  type TransactionType required
+  status TransactionStatus required
+  amount BigDecimal required min(0)
+  fees BigDecimal min(0)
+
+  /// S'il s'agit d'un transfert entre deux clients, la `source` est le numéro de téléphone de celui qui est débité.
+  /// S'il s'agit d'une opération impliquant un système externe :
+  ///   - CARD_RECHARGE, BILL_PAYMENT, MERCHANT_PAYMENT, AIRTIME_PURCHASE, WALLET2BANK : la `source` est l'identifiant ou le nom du Business ou du Tiers.
+  ///   - BANK2WALLET : la `source` est le numéro de compte bancaire débité ou le nom de la banque.
+  source String required    // Téléphone, Numéro de Compte ou Système Externe(BANK, SENEAU, SENELEC, etc) Débité.
+
+  /// S'il s'agit d'un transfert entre deux clients, la `destination` est le numéro de téléphone de celui qui est crédité.
+  /// S'il s'agit d'une opération impliquant un système externe :
+  ///   - CARD_RECHARGE, BILL_PAYMENT, MERCHANT_PAYMENT, AIRTIME_PURCHASE, BANK2WALLET : la `destination` est l'identifiant ou le nom du Business ou du Tiers.
+  ///   - BANK_TRANSFER_OUT : la `destination` est le numéro de compte bancaire crédité ou le nom de la banque.
+  destination String required  // Téléphone / Numéro de Compte Crédité
+
+  // Infos d'audit
+  initiatedAt Instant required
+  completedAt Instant
+  failedAt Instant
+  errorMessage String maxlength(255)
+}
+
+relationship OneToMany {
+  // 1. Liaison Wallet <-> Transaction (Opérations Générales incluant celles des autres microservices)
+  Wallet{debits} to Transaction{debitedAccount},
+  Wallet{credits} to Transaction{creditedAccount}
+
+  // 2. Liaison Wallet <-> Transfer (Opérations P2P)
+  Wallet{transfersSent} to Transfer{sender},
+  Wallet{transfersReceived} to Transfer{receiver}
+}
+
+dto * with mapstruct
+service * with serviceImpl
+paginate * with pagination
