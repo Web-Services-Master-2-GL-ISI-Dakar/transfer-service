@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import sn.ondmoney.txe.client.UserClient;
 import sn.ondmoney.txe.domain.OperationLog;
 import sn.ondmoney.txe.domain.Wallet;
 import sn.ondmoney.txe.domain.enumeration.WalletStatus;
@@ -18,7 +19,9 @@ import sn.ondmoney.txe.repository.WalletRepository;
 import sn.ondmoney.txe.service.api.AccountService;
 import sn.ondmoney.txe.service.dto.BalanceDTO;
 import sn.ondmoney.txe.service.dto.OperationResultDTO;
+import sn.ondmoney.txe.service.dto.UserDTO;
 import sn.ondmoney.txe.service.exception.AccountNotFoundException;
+
 
 @Service
 @Transactional
@@ -29,10 +32,14 @@ public class WalletAccountServiceImpl implements AccountService {
     private final WalletRepository walletRepository;
     private final OperationLogRepository operationLogRepository;
 
-    public WalletAccountServiceImpl( WalletRepository walletRepository, OperationLogRepository operationLogRepository) {
+    private final UserClient userClient;
+
+
+    public WalletAccountServiceImpl( WalletRepository walletRepository, OperationLogRepository operationLogRepository, UserClient userClient) {
 
         this.walletRepository = walletRepository;
         this.operationLogRepository = operationLogRepository;
+        this.userClient = userClient;
     }
 
     // =================================================
@@ -117,9 +124,15 @@ public class WalletAccountServiceImpl implements AccountService {
 //            return toOperationResult(log, wallet);
 //        }
 
+
+        if (wallet.getBalance().compareTo(amount) < 0) {
+            throw new IllegalStateException("Fonds_Insuffisant");
+        }
+
         wallet.setBalance(wallet.getBalance().subtract(amount));
         wallet.setUpdatedAt(Instant.now());
         walletRepository.save(wallet);
+
 
 //        OperationLog log = persistLog(requestId, "DEBIT", userId, amount, "OK", null);
 //        return toOperationResult(log, wallet)
@@ -141,20 +154,21 @@ public class WalletAccountServiceImpl implements AccountService {
     private Wallet createWallet(String userId) {
         Wallet wallet = new Wallet();
         wallet.setUserId(userId);
-        wallet.setPhone("UNKNOWN");        // obligatoire
+
+//        // Le phone viendra plus tard du User Service
+//        wallet.setPhone(null);
+
+        // Phone récupéré depuis User Service (si dispo)
+        wallet.setPhone(resolvePhone(userId));
+
         wallet.setBalance(BigDecimal.ZERO);
         wallet.setStatus(WalletStatus.ACTIVE);
-        wallet.setVersion(1);
         wallet.setCreatedAt(Instant.now());
         wallet.setUpdatedAt(Instant.now());
+
         return walletRepository.save(wallet);
     }
 
-    private void validateAmount(BigDecimal amount) {
-        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Amount must be > 0");
-        }
-    }
 
 //    private OperationLog persistLog(
 //        String requestId,
@@ -191,4 +205,21 @@ public class WalletAccountServiceImpl implements AccountService {
         dto.setProcessedAt(log.getProcessedAt());
         return dto;
     }
+
+    private String resolvePhone(String userId) {
+        try {
+            UserDTO user = userClient.getUser(userId);
+            return user != null ? user.getPhone() : null;
+        } catch (Exception e) {
+            log.warn("User service injoignable pour userId={}", userId);
+            return null;
+        }
+    }
+
+    private void validateAmount(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("\n" + "Le montant doit être supérieur à zéro");
+        }
+    }
+
 }

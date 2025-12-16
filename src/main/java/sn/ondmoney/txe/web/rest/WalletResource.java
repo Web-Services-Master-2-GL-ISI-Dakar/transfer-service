@@ -187,31 +187,41 @@ public class WalletResource {
     }
 
 
-    @GetMapping("/{userId}/balance")
-    public BalanceDTO getBalance(@PathVariable String userId){ return accountService.getBalance(userId); }
+//    @GetMapping("/{userId}/balance")
+//    public BalanceDTO getBalance(@PathVariable String userId){ return accountService.getBalance(userId); }
+
+    @GetMapping("/users/{userId}/balance")
+    public BalanceDTO getBalance(@PathVariable String userId) {
+        return accountService.getBalance(userId);
+    }
+
 
     @PostMapping("/debit")
-    public OperationResultDTO debit(
-        @RequestBody WalletOperationRequestDTO request,
+    public ResponseEntity<OperationResultDTO> debit(
+        @Valid @RequestBody WalletOperationRequestDTO request,
         @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey
     ) {
-        return accountService.debit(
+        OperationResultDTO result = accountService.debit(
             request.getUserId(),
             request.getAmount(),
             idempotencyKey
         );
+        return ResponseEntity.ok(result);
     }
 
+
     @PostMapping("/credit")
-    public OperationResultDTO credit(
-        @RequestBody WalletOperationRequestDTO request,
+    public ResponseEntity<OperationResultDTO> credit(
+        @Valid @RequestBody WalletOperationRequestDTO request,
         @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey
     ) {
-        return accountService.credit(
+        OperationResultDTO result = accountService.credit(
             request.getUserId(),
             request.getAmount(),
             idempotencyKey
         );
+        return ResponseEntity.ok(result);
     }
+
 
 }

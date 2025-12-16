@@ -33,8 +33,8 @@ public class Wallet implements Serializable {
     @Column(name = "user_id", nullable = false, unique = true)
     private String userId;
 
-    //@NotNull
-    @Column(name = "phone", nullable = true, unique = true)
+    @NotNull
+    @Column(name = "phone", nullable = false, unique = true)
     private String phone;
 
     @NotNull
