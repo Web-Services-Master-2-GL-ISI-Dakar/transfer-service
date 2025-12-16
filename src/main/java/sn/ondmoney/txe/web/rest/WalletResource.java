@@ -2,6 +2,8 @@ package sn.ondmoney.txe.web.rest;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+
+import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -18,6 +20,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import sn.ondmoney.txe.repository.WalletRepository;
 import sn.ondmoney.txe.service.WalletService;
+import sn.ondmoney.txe.service.api.AccountService;
+import sn.ondmoney.txe.service.dto.BalanceDTO;
+import sn.ondmoney.txe.service.dto.OperationResultDTO;
 import sn.ondmoney.txe.service.dto.WalletDTO;
 import sn.ondmoney.txe.web.rest.errors.BadRequestAlertException;
 import tech.jhipster.web.util.HeaderUtil;
@@ -41,11 +46,14 @@ public class WalletResource {
     private final WalletService walletService;
 
     private final WalletRepository walletRepository;
+    private final AccountService accountService;
 
-    public WalletResource(WalletService walletService, WalletRepository walletRepository) {
+    public WalletResource(WalletService walletService, WalletRepository walletRepository, AccountService accountService) {
         this.walletService = walletService;
         this.walletRepository = walletRepository;
+        this.accountService = accountService;
     }
+
 
     /**
      * {@code POST  /wallets} : Create a new wallet.
@@ -175,5 +183,21 @@ public class WalletResource {
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+
+    @GetMapping("/{userId}/balance")
+    public BalanceDTO getBalance(@PathVariable String userId){ return accountService.getBalance(userId); }
+
+    @PostMapping("/debit")
+    public OperationResultDTO debit(@RequestParam String userId, @RequestParam BigDecimal amount,
+                                    @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey){
+        return accountService.debit(userId, amount, idempotencyKey);
+    }
+
+    @PostMapping("/credit")
+    public OperationResultDTO credit(@RequestParam String userId, @RequestParam BigDecimal amount,
+                                     @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey){
+        return accountService.credit(userId, amount, idempotencyKey);
     }
 }

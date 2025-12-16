@@ -4,9 +4,13 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 import sn.ondmoney.txe.domain.Transfer;
 
+import java.util.Optional;
+
 /**
  * Spring Data JPA repository for the Transfer entity.
  */
 @SuppressWarnings("unused")
 @Repository
-public interface TransferRepository extends JpaRepository<Transfer, Long> {}
+public interface TransferRepository extends JpaRepository<Transfer, Long> {
+    Optional<Transfer> findByTxId(String txId);
+}

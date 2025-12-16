@@ -75,6 +75,22 @@ public class Transfer implements Serializable {
     @JsonIgnoreProperties(value = { "debits", "credits", "transfersSents", "transfersReceiveds" }, allowSetters = true)
     private Wallet receiver;
 
+    @Column(name = "external_tx_id")
+    private String externalTxId;
+
+    public String getExternalTxId() {
+        return externalTxId;
+    }
+
+    public void setExternalTxId(String externalTxId) {
+        this.externalTxId = externalTxId;
+    }
+
+    public Transfer externalTxId(String externalTxId) {
+        this.externalTxId = externalTxId;
+        return this;
+    }
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public Long getId() {
@@ -274,6 +290,7 @@ public class Transfer implements Serializable {
             ", status='" + getStatus() + "'" +
             ", amount=" + getAmount() +
             ", fees=" + getFees() +
+            ", externalTxId='" + getExternalTxId() + "'" +
             ", senderPhone='" + getSenderPhone() + "'" +
             ", receiverPhone='" + getReceiverPhone() + "'" +
             ", initiatedAt='" + getInitiatedAt() + "'" +

@@ -16,9 +16,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import sn.ondmoney.txe.domain.Transfer;
 import sn.ondmoney.txe.repository.TransferRepository;
+import sn.ondmoney.txe.service.TransferBusinessService;
 import sn.ondmoney.txe.service.TransferService;
 import sn.ondmoney.txe.service.dto.TransferDTO;
+import sn.ondmoney.txe.service.dto.TransferRequestDTO;
 import sn.ondmoney.txe.web.rest.errors.BadRequestAlertException;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
@@ -42,9 +45,18 @@ public class TransferResource {
 
     private final TransferRepository transferRepository;
 
-    public TransferResource(TransferService transferService, TransferRepository transferRepository) {
+    private final TransferBusinessService transferBusinessService;
+
+    public TransferResource(TransferService transferService, TransferRepository transferRepository, TransferBusinessService transferBusinessService) {
         this.transferService = transferService;
         this.transferRepository = transferRepository;
+        this.transferBusinessService = transferBusinessService;
+    }
+
+
+    @PostMapping("/p2p")
+    public Transfer p2p(@RequestBody TransferRequestDTO req){
+        return transferBusinessService.executeP2P(req);
     }
 
     /**

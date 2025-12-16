@@ -41,6 +41,16 @@ public class TransferDTO implements Serializable {
 
     private Instant failedAt;
 
+    private String externalTxId;
+
+    public String getExternalTxId() {
+        return externalTxId;
+    }
+
+    public void setExternalTxId(String externalTxId) {
+        this.externalTxId = externalTxId;
+    }
+
     @Size(max = 255)
     private String errorMessage;
 
