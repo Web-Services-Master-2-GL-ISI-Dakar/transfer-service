@@ -7,50 +7,42 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import sn.ondmoney.txe.domain.OperationLog;
 import sn.ondmoney.txe.domain.Wallet;
+import sn.ondmoney.txe.domain.enumeration.WalletStatus;
 import sn.ondmoney.txe.repository.OperationLogRepository;
 import sn.ondmoney.txe.repository.WalletRepository;
 import sn.ondmoney.txe.service.api.AccountService;
 import sn.ondmoney.txe.service.dto.BalanceDTO;
 import sn.ondmoney.txe.service.dto.OperationResultDTO;
 import sn.ondmoney.txe.service.exception.AccountNotFoundException;
-import sn.ondmoney.txe.service.exception.InsufficientFundsException;
 
 @Service
+@Transactional
 public class WalletAccountServiceImpl implements AccountService {
 
     private final Logger log = LoggerFactory.getLogger(WalletAccountServiceImpl.class);
 
     private final WalletRepository walletRepository;
     private final OperationLogRepository operationLogRepository;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    private final String TOPIC = "transaction-events";
+    public WalletAccountServiceImpl( WalletRepository walletRepository, OperationLogRepository operationLogRepository) {
 
-    public WalletAccountServiceImpl(
-        WalletRepository walletRepository,
-        OperationLogRepository operationLogRepository,
-        KafkaTemplate<String, Object> kafkaTemplate
-    ) {
         this.walletRepository = walletRepository;
         this.operationLogRepository = operationLogRepository;
-        this.kafkaTemplate = kafkaTemplate;
     }
 
-    // -------------------------------------------------
-    // GET BALANCE
-    // -------------------------------------------------
+    // =================================================
+    // BALANCE
+    // =================================================
     @Override
     @Transactional(readOnly = true)
     public BalanceDTO getBalance(String userId) {
 
-        Wallet wallet = walletRepository
-            .findByUserId(userId)
+        Wallet wallet = walletRepository.findByUserId(userId)
             .orElseThrow(() -> new AccountNotFoundException("Wallet not found for userId: " + userId));
 
         BalanceDTO dto = new BalanceDTO();
@@ -60,55 +52,15 @@ public class WalletAccountServiceImpl implements AccountService {
         return dto;
     }
 
-    // -------------------------------------------------
-    // DEBIT
-    // -------------------------------------------------
-    @Override
-    @Transactional
-    public OperationResultDTO debit(String userId, BigDecimal amount, String requestId) {
-
-        validateAmount(amount);
-
-        // Idempotency check
-        if (requestId != null) {
-            Optional<OperationLog> existing = operationLogRepository.findByRequestId(requestId);
-            if (existing.isPresent()) {
-                return toOperationResult(existing.get());
-            }
-        }
-
-        Wallet wallet = walletRepository
-            .findByUserId(userId)
-            .orElseThrow(() -> new AccountNotFoundException("Wallet not found for userId: " + userId));
-
-        if (wallet.getBalance().compareTo(amount) < 0) {
-            OperationLog logEntry =
-                persistLog(requestId, "DEBIT", userId, amount, "INSUFFICIENT_FUNDS", "Not enough balance");
-            return toOperationResult(logEntry);
-        }
-
-        // Apply debit
-        wallet.setBalance(wallet.getBalance().subtract(amount));
-        wallet.setUpdatedAt(Instant.now());
-        walletRepository.save(wallet);
-
-        OperationLog logEntry = persistLog(requestId, "DEBIT", userId, amount, "OK", null);
-
-        publishEvent(userId, "DEBIT", amount, logEntry.getRequestId());
-
-        return toOperationResult(logEntry, wallet);
-    }
-
-    // -------------------------------------------------
+    // =================================================
     // CREDIT
-    // -------------------------------------------------
+    // =================================================
     @Override
-    @Transactional
     public OperationResultDTO credit(String userId, BigDecimal amount, String requestId) {
 
         validateAmount(amount);
 
-        // Idempotency
+        // Idempotence
         if (requestId != null) {
             Optional<OperationLog> existing = operationLogRepository.findByRequestId(requestId);
             if (existing.isPresent()) {
@@ -116,81 +68,127 @@ public class WalletAccountServiceImpl implements AccountService {
             }
         }
 
-        // Wallet must exist ? -> JDL = wallet unique, mais on peut bootstrap un wallet vide.
-        Wallet wallet = walletRepository
-            .findByUserId(userId)
-            .orElseThrow(() -> new AccountNotFoundException("Wallet not found for userId: " + userId));
+        Wallet wallet = walletRepository.findByUserId(userId)
+            .orElseGet(() -> createWallet(userId));
 
         wallet.setBalance(wallet.getBalance().add(amount));
         wallet.setUpdatedAt(Instant.now());
         walletRepository.save(wallet);
 
-        OperationLog logEntry = persistLog(requestId, "CREDIT", userId, amount, "OK", null);
+//        OperationLog log = persistLog(requestId, "CREDIT", userId, amount, "OK", null);
+//        return toOperationResult(log, wallet);
+        OperationResultDTO dto = new OperationResultDTO();
+        dto.setUserId(userId);
+        dto.setCode("OK");
+        dto.setSuccess(true);
+        dto.setNewBalance(wallet.getBalance());
+        dto.setProcessedAt(Instant.now());
+        return dto;
 
-        publishEvent(userId, "CREDIT", amount, logEntry.getRequestId());
-
-        return toOperationResult(logEntry, wallet);
     }
 
-    // -------------------------------------------------
-    // Helpers
-    // -------------------------------------------------
+    // =================================================
+    // DEBIT
+    // =================================================
+    @Override
+    public OperationResultDTO debit(String userId, BigDecimal amount, String requestId) {
+
+        validateAmount(amount);
+
+        if (requestId != null) {
+            Optional<OperationLog> existing = operationLogRepository.findByRequestId(requestId);
+            if (existing.isPresent()) {
+                return toOperationResult(existing.get());
+            }
+        }
+
+        Wallet wallet = walletRepository.findByUserId(userId)
+            .orElseThrow(() -> new AccountNotFoundException("Wallet not found for userId: " + userId));
+
+//        if (wallet.getBalance().compareTo(amount) < 0) {
+//            OperationLog log = persistLog(
+//                requestId,
+//                "DEBIT",
+//                userId,
+//                amount,
+//                "INSUFFICIENT_FUNDS",
+//                "Not enough balance"
+//            );
+//            return toOperationResult(log, wallet);
+//        }
+
+        wallet.setBalance(wallet.getBalance().subtract(amount));
+        wallet.setUpdatedAt(Instant.now());
+        walletRepository.save(wallet);
+
+//        OperationLog log = persistLog(requestId, "DEBIT", userId, amount, "OK", null);
+//        return toOperationResult(log, wallet)
+
+        OperationResultDTO dto = new OperationResultDTO();
+        dto.setUserId(userId);
+        dto.setCode("OK");
+        dto.setSuccess(true);
+        dto.setNewBalance(wallet.getBalance());
+        dto.setProcessedAt(Instant.now());
+        return dto;
+
+    }
+
+    // =================================================
+    // HELPERS
+    // =================================================
+
+    private Wallet createWallet(String userId) {
+        Wallet wallet = new Wallet();
+        wallet.setUserId(userId);
+        wallet.setPhone("UNKNOWN");        // obligatoire
+        wallet.setBalance(BigDecimal.ZERO);
+        wallet.setStatus(WalletStatus.ACTIVE);
+        wallet.setVersion(1);
+        wallet.setCreatedAt(Instant.now());
+        wallet.setUpdatedAt(Instant.now());
+        return walletRepository.save(wallet);
+    }
+
     private void validateAmount(BigDecimal amount) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Amount must be > 0");
         }
     }
 
-    private OperationLog persistLog(
-        String requestId,
-        String opType,
-        String userId,
-        BigDecimal amount,
-        String resultCode,
-        String details
-    ) {
-        OperationLog log = new OperationLog();
-        log.setRequestId(requestId != null ? requestId : UUID.randomUUID().toString());
-        log.setOperationType(opType);
-        log.setUserId(userId);
-        log.setAmount(amount);
-        log.setResultCode(resultCode);
-        log.setDetails(details);
-        log.setProcessedAt(Instant.now());
-        return operationLogRepository.save(log);
-    }
+//    private OperationLog persistLog(
+//        String requestId,
+//        String type,
+//        String userId,
+//        BigDecimal amount,
+//        String code,
+//        String details
+//    ) {
+//        OperationLog log = new OperationLog();
+//        log.setRequestId(requestId != null ? requestId : UUID.randomUUID().toString());
+//        log.setOperationType(type);
+//        log.setUserId(userId);
+//        log.setAmount(amount);
+//        log.setResultCode(code);
+//        log.setDetails(details);
+//        log.setProcessedAt(Instant.now());
+//        return operationLogRepository.save(log);
+//    }
 
-    private void publishEvent(String userId, String opType, BigDecimal amount, String requestId) {
-        if (kafkaTemplate == null) return;
-        try {
-            var payload = new java.util.HashMap<String, Object>();
-            payload.put("userId", userId);
-            payload.put("operation", opType);
-            payload.put("amount", amount);
-            payload.put("requestId", requestId);
-            payload.put("timestamp", Instant.now());
+//    private OperationResultDTO toOperationResult(OperationLog log, Wallet wallet) {
+//        OperationResultDTO dto = toOperationResult(log);
+//        dto.setNewBalance(wallet.getBalance());
+//        return dto;
+//    }
 
-            kafkaTemplate.send(TOPIC, payload);
-        } catch (Exception e) {
-            log.warn("Kafka publish failed: {}", e.getMessage());
-        }
-    }
-
-    private OperationResultDTO toOperationResult(OperationLog op) {
+    private OperationResultDTO toOperationResult(OperationLog log) {
         OperationResultDTO dto = new OperationResultDTO();
-        dto.setRequestId(op.getRequestId());
-        dto.setUserId(op.getUserId());
-        dto.setCode(op.getResultCode());
-        dto.setMessage(op.getResultCode());
-        dto.setSuccess("OK".equals(op.getResultCode()));
-        dto.setProcessedAt(op.getProcessedAt());
-        dto.setNewBalance(null); // pas de wallet
-        return dto;
-    }
-
-    private OperationResultDTO toOperationResult(OperationLog op, Wallet wallet) {
-        OperationResultDTO dto = toOperationResult(op);
-        dto.setNewBalance(wallet.getBalance());
+        dto.setRequestId(log.getRequestId());
+        dto.setUserId(log.getUserId());
+        dto.setCode(log.getResultCode());
+        dto.setMessage(log.getResultCode());
+        dto.setSuccess("OK".equals(log.getResultCode()));
+        dto.setProcessedAt(log.getProcessedAt());
         return dto;
     }
 }

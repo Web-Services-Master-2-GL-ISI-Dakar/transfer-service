@@ -24,6 +24,7 @@ import sn.ondmoney.txe.service.api.AccountService;
 import sn.ondmoney.txe.service.dto.BalanceDTO;
 import sn.ondmoney.txe.service.dto.OperationResultDTO;
 import sn.ondmoney.txe.service.dto.WalletDTO;
+import sn.ondmoney.txe.service.dto.WalletOperationRequestDTO;
 import sn.ondmoney.txe.web.rest.errors.BadRequestAlertException;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
@@ -190,14 +191,27 @@ public class WalletResource {
     public BalanceDTO getBalance(@PathVariable String userId){ return accountService.getBalance(userId); }
 
     @PostMapping("/debit")
-    public OperationResultDTO debit(@RequestParam String userId, @RequestParam BigDecimal amount,
-                                    @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey){
-        return accountService.debit(userId, amount, idempotencyKey);
+    public OperationResultDTO debit(
+        @RequestBody WalletOperationRequestDTO request,
+        @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey
+    ) {
+        return accountService.debit(
+            request.getUserId(),
+            request.getAmount(),
+            idempotencyKey
+        );
     }
 
     @PostMapping("/credit")
-    public OperationResultDTO credit(@RequestParam String userId, @RequestParam BigDecimal amount,
-                                     @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey){
-        return accountService.credit(userId, amount, idempotencyKey);
+    public OperationResultDTO credit(
+        @RequestBody WalletOperationRequestDTO request,
+        @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey
+    ) {
+        return accountService.credit(
+            request.getUserId(),
+            request.getAmount(),
+            idempotencyKey
+        );
     }
+
 }
