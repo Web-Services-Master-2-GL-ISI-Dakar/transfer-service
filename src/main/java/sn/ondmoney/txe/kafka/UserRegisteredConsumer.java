@@ -103,6 +103,7 @@ public class UserRegisteredConsumer {
             wallet.setPhoneNumber(event.getPhoneNumber());
             wallet.setCurrency(DEFAULT_CURRENCY);
             wallet.setBalance(BigDecimal.ZERO);
+            wallet.setVersion(0);
             wallet.setStatus(WalletStatus.ACTIVE);
             wallet.setCreatedDate(Instant.now());
 

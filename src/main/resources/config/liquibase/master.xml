@@ -19,5 +19,7 @@
     <include file="config/liquibase/changelog/20251207192000_added_entity_constraints_Transfer.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20251207192001_added_entity_constraints_Transaction.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
+    <include file="config/liquibase/changelog/20260103000000_update_entity_Wallet_add_missing_columns.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20260103200000_added_entity_ProcessedEvent.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
 </databaseChangeLog>
