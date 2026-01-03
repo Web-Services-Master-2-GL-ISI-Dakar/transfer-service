@@ -37,6 +37,12 @@ public class Wallet implements Serializable {
     @Column(name = "phone", nullable = false, unique = true)
     private String phone;
 
+    @Column(name = "keycloak_id")
+    private String keycloakId;
+
+    @Column(name = "currency", length = 3)
+    private String currency = "XOF";
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -116,6 +122,38 @@ public class Wallet implements Serializable {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getPhoneNumber() {
+        return this.phone;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phone = phoneNumber;
+    }
+
+    public String getKeycloakId() {
+        return this.keycloakId;
+    }
+
+    public void setKeycloakId(String keycloakId) {
+        this.keycloakId = keycloakId;
+    }
+
+    public String getCurrency() {
+        return this.currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public Instant getCreatedDate() {
+        return this.createdAt;
+    }
+
+    public void setCreatedDate(Instant createdDate) {
+        this.createdAt = createdDate;
     }
 
     public WalletStatus getStatus() {
