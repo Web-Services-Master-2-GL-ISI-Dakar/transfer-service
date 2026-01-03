@@ -23,9 +23,11 @@ logging:
 eureka:
   instance:
     prefer-ip-address: true
+    appname: ondmoneytransactionengine
   client:
+    enabled: true
     service-url:
-      defaultZone: http://admin:${jhipster.registry.password}@localhost:8761/eureka/
+      defaultZone: http://admin:admin@localhost:8761/eureka/
 
 management:
   zipkin: # Use the "zipkin" Maven profile to have the Spring Cloud Zipkin dependencies
