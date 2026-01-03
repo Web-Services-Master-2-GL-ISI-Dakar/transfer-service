@@ -23,11 +23,28 @@ public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
 
     public OAuth2TokenValidatorResult validate(Jwt jwt) {
         List<String> audience = jwt.getAudience();
-        if (audience.stream().anyMatch(allowedAudience::contains)) {
+        
+        // Check standard audience claim
+        if (audience != null && audience.stream().anyMatch(allowedAudience::contains)) {
             return OAuth2TokenValidatorResult.success();
-        } else {
-            LOG.warn("Invalid audience: {}", audience);
-            return OAuth2TokenValidatorResult.failure(error);
         }
+        
+        // Also check 'azp' (authorized party) claim - Keycloak includes client_id here
+        String azp = jwt.getClaimAsString("azp");
+        if (azp != null && allowedAudience.contains(azp)) {
+            LOG.debug("Token validated via azp claim: {}", azp);
+            return OAuth2TokenValidatorResult.success();
+        }
+        
+        // Also check 'client_id' claim for service accounts
+        String clientId = jwt.getClaimAsString("client_id");
+        if (clientId != null && allowedAudience.contains(clientId)) {
+            LOG.debug("Token validated via client_id claim: {}", clientId);
+            return OAuth2TokenValidatorResult.success();
+        }
+        
+        LOG.warn("Invalid audience. aud: {}, azp: {}, client_id: {}, allowed: {}", 
+            audience, azp, clientId, allowedAudience);
+        return OAuth2TokenValidatorResult.failure(error);
     }
 }
