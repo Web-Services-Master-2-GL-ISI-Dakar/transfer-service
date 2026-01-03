@@ -127,6 +127,24 @@ spring:
     exclude: org.springframework.boot.actuate.autoconfigure.metrics.jdbc.DataSourcePoolMetricsAutoConfiguration
   application:
     name: ondmoneyTransactionEngine
+  # Kafka configuration for events
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: txe-consumers
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        isolation.level: read_committed
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: true
   cloud:
     function:
       definition: kafkaConsumer;kafkaProducer
@@ -149,9 +167,9 @@ spring:
           group: ondmoney-transaction-engine
   docker:
     compose:
-      enabled: true
-      lifecycle-management: start-only
-      file: src/main/docker/postgresql.yml
+      enabled: false # Disable auto-start, use shared infra from start-infra.sh
+      # lifecycle-management: start-only
+      # file: src/main/docker/postgresql.yml
   profiles:
     # The commented value for `active` can be replaced with valid Spring profiles to load.
     # Otherwise, it will be filled in by maven when building the JAR file
@@ -207,12 +225,15 @@ spring:
       client:
         provider:
           oidc:
-            issuer-uri: http://localhost:9080/realms/jhipster
+            issuer-uri: http://127.0.0.1:9080/realms/jhipster
         registration:
           oidc:
             client-id: internal
             client-secret: internal
             scope: openid, profile, email, offline_access # last one for refresh tokens
+      resourceserver:
+        jwt:
+          issuer-uri: http://127.0.0.1:9080/realms/jhipster
   task:
     execution:
       thread-name-prefix: ondmoney-transaction-engine-task-
@@ -280,6 +301,7 @@ jhipster:
       audience:
         - account
         - api://default
+        - web_app
 
 # jhipster-needle-add-application-yaml-document
 ---

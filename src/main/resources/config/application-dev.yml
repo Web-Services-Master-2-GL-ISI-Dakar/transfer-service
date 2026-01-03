@@ -23,9 +23,11 @@ logging:
 eureka:
   instance:
     prefer-ip-address: true
+    appname: ondmoneytransactionengine
   client:
+    enabled: true
     service-url:
-      defaultZone: http://admin:${jhipster.registry.password}@localhost:8761/eureka/
+      defaultZone: http://admin:admin@localhost:8761/eureka/
 
 management:
   zipkin: # Use the "zipkin" Maven profile to have the Spring Cloud Zipkin dependencies
@@ -36,6 +38,9 @@ management:
       probability: 1.0 # report 100% of traces
 
 spring:
+  docker:
+    compose:
+      enabled: false # Disable auto-start, use shared infra from start-infra.sh
   devtools:
     restart:
       enabled: true
@@ -55,9 +60,10 @@ spring:
       # it can be set to any label, branch or commit of the configuration source Git repository
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://localhost:5432/ondmoneyTransactionEngine
-    username: ondmoneyTransactionEngine
-    password:
+    # Port 5433 dédié pour TxEngineMS (séparé de AuthMS qui utilise 5432)
+    url: jdbc:postgresql://localhost:5433/ondmoneyTransactionEngine
+    username: postgres
+    password: passer
     hikari:
       poolName: Hikari
       auto-commit: false
