@@ -36,6 +36,9 @@ management:
       probability: 1.0 # report 100% of traces
 
 spring:
+  docker:
+    compose:
+      enabled: false # Disable auto-start, use shared infra from start-infra.sh
   devtools:
     restart:
       enabled: true

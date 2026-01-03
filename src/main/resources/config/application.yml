@@ -167,9 +167,9 @@ spring:
           group: ondmoney-transaction-engine
   docker:
     compose:
-      enabled: true
-      lifecycle-management: start-only
-      file: src/main/docker/postgresql.yml
+      enabled: false # Disable auto-start, use shared infra from start-infra.sh
+      # lifecycle-management: start-only
+      # file: src/main/docker/postgresql.yml
   profiles:
     # The commented value for `active` can be replaced with valid Spring profiles to load.
     # Otherwise, it will be filled in by maven when building the JAR file
