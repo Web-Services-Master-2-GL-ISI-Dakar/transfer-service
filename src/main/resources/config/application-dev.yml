@@ -55,9 +55,10 @@ spring:
       # it can be set to any label, branch or commit of the configuration source Git repository
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:postgresql://localhost:5432/ondmoneyTransactionEngine
-    username: ondmoneyTransactionEngine
-    password:
+    # Port 5433 dédié pour TxEngineMS (séparé de AuthMS qui utilise 5432)
+    url: jdbc:postgresql://localhost:5433/ondmoneyTransactionEngine
+    username: postgres
+    password: passer
     hikari:
       poolName: Hikari
       auto-commit: false
